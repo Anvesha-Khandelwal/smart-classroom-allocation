@@ -1,16 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, BookOpen, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, GraduationCap, BookOpen, Shield } from "lucide-react";
 
 const USERS = {
-  teacher: [
-    { email: "prof.mehta@college.edu",   password: "teacher123", name: "Prof. Mehta"  },
-    { email: "prof.sharma@college.edu",  password: "teacher123", name: "Prof. Sharma" },
-  ],
-  student: [
-    { email: "student@college.edu", password: "student123", name: "Alex Kumar"   },
-    { email: "cs3a@college.edu",    password: "student123", name: "CS-3A Student" },
-  ],
+  teacher: { email: "prof.mehta@dsce.edu.in", password: "teacher123", name: "Prof. Mehta" },
+  student: { email: "student@dsce.edu.in",    password: "student123", name: "Alex Kumar"  },
 };
 
 export default function LoginPage() {
@@ -26,161 +20,190 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-
-    const match = USERS[role].find(
-      (u) => u.email === email.trim() && u.password === password
-    );
-
-    if (!match) {
-      setError("Incorrect email or password. Try the demo credentials below.");
+    await new Promise((r) => setTimeout(r, 800));
+    const user = USERS[role];
+    if (email.trim() !== user.email || password !== user.password) {
+      setError("Invalid credentials. Please try the demo credentials.");
       setLoading(false);
       return;
     }
-
     setLoading(false);
-    navigate(role === "teacher" ? "/teacher" : "/student");
+    navigate(role === "teacher" ? "/teacher/dashboard" : "/student");
   };
 
   const fillDemo = () => {
-    const demo = USERS[role][0];
-    setEmail(demo.email);
-    setPassword(demo.password);
+    setEmail(USERS[role].email);
+    setPassword(USERS[role].password);
     setError("");
   };
 
-  const inputCls = `w-full px-4 py-3 rounded-xl border text-sm text-slate-700 bg-white
-    focus:outline-none focus:ring-2 transition placeholder:text-slate-400
-    ${error ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-400"}`;
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center p-4">
+    <div className="min-h-screen flex">
 
-      {/* Background grid pattern */}
-      <div className="absolute inset-0 opacity-10"
-        style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+      {/* ── Left panel ── */}
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 flex-col justify-between p-12 relative overflow-hidden">
+        {/* Grid pattern */}
+        <div className="absolute inset-0"
+          style={{
+            backgroundImage: "linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px)",
+            backgroundSize: "48px 48px"
+          }} />
+        {/* Glow */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative w-full max-w-md">
-
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-900/50">
-            <BookOpen size={28} className="text-white" />
+        <div className="relative">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+              <BookOpen size={20} className="text-white" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-lg leading-none">DSCE</p>
+              <p className="text-slate-400 text-xs">Smart Classroom System</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-white">Smart Classroom</h1>
-          <p className="text-slate-400 text-sm mt-1">Allocation System</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl shadow-black/40 p-8">
-
-          {/* Role toggle */}
-          <div className="flex rounded-2xl bg-slate-100 p-1 mb-7">
-            <button
-              onClick={() => { setRole("teacher"); setError(""); setEmail(""); setPassword(""); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
-                ${role === "teacher" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
-              <BookOpen size={15} /> Teacher
-            </button>
-            <button
-              onClick={() => { setRole("student"); setError(""); setEmail(""); setPassword(""); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
-                ${role === "student" ? "bg-amber-500 text-white shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
-              <GraduationCap size={15} /> Student
-            </button>
-          </div>
-
-          {/* Welcome text */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-slate-800">
-              {role === "teacher" ? "Welcome back, Professor" : "Welcome back, Student"}
-            </h2>
-            <p className="text-sm text-slate-400 mt-0.5">
-              {role === "teacher"
-                ? "Manage rooms, bookings, and schedules."
-                : "View your class schedule and room assignments."}
+        <div className="relative space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold text-white leading-tight">
+              Intelligent<br />
+              <span className="text-indigo-400">Room Allocation</span><br />
+              Platform
+            </h1>
+            <p className="text-slate-400 mt-4 text-sm leading-relaxed max-w-xs">
+              Powered by greedy algorithms, interval trees, and priority queues — automated conflict-free classroom scheduling for DSCE.
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <div className="space-y-3">
+            {[
+              { icon: Shield, text: "Conflict detection in O(log n) time" },
+              { icon: GraduationCap, text: "Priority-based faculty booking" },
+              { icon: BookOpen, text: "Best-fit room allocation algorithm" },
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+                  <Icon size={13} className="text-indigo-400" />
+                </div>
+                <p className="text-slate-400 text-sm">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="relative text-slate-600 text-xs">
+          Dayananda Sagar College of Engineering, Bangalore · DSA Project 2024
+        </p>
+      </div>
+
+      {/* ── Right panel ── */}
+      <div className="flex-1 flex items-center justify-center bg-slate-50 p-8">
+        <div className="w-full max-w-md">
+
+          {/* Mobile logo */}
+          <div className="flex items-center gap-3 mb-8 lg:hidden">
+            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
+              <BookOpen size={17} className="text-white" />
+            </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+              <p className="font-bold text-slate-800">DSCE Smart Classroom</p>
+              <p className="text-slate-400 text-xs">Allocation System</p>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-slate-800">Welcome back</h2>
+            <p className="text-slate-500 text-sm mt-1">Sign in to access your dashboard</p>
+          </div>
+
+          {/* Role toggle */}
+          <div className="flex bg-white rounded-2xl border border-slate-200 p-1 mb-8 shadow-sm">
+            {["teacher", "student"].map((r) => (
+              <button key={r}
+                onClick={() => { setRole(r); setError(""); setEmail(""); setPassword(""); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
+                  ${role === r
+                    ? r === "teacher"
+                      ? "bg-slate-900 text-white shadow-sm"
+                      : "bg-amber-500 text-white shadow-sm"
+                    : "text-slate-400 hover:text-slate-600"}`}>
+                {r === "teacher" ? <BookOpen size={14} /> : <GraduationCap size={14} />}
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
                 Email Address
               </label>
-              <input
-                type="email"
-                placeholder={role === "teacher" ? "prof.name@college.edu" : "student@college.edu"}
+              <input type="email" required
                 value={email}
+                placeholder={USERS[role].email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                className={inputCls}
-                required
-              />
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition shadow-sm" />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
                 Password
               </label>
               <div className="relative">
-                <input
-                  type={showPwd ? "text" : "password"}
-                  placeholder="Enter your password"
+                <input type={showPwd ? "text" : "password"} required
                   value={password}
+                  placeholder="Enter your password"
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                  className={`${inputCls} pr-12`}
-                  required
-                />
+                  className="w-full px-4 py-3 pr-12 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition shadow-sm" />
                 <button type="button" onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition">
-                  {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition">
+                  {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
-            {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
-                {error}
+              <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
-            {/* Submit */}
             <button type="submit" disabled={loading}
-              className={`w-full py-3 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all
-                ${role === "teacher"
-                  ? "bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200"
-                  : "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-200"}
-                disabled:opacity-60`}>
+              className={`w-full py-3 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-60
+                ${role === "teacher" ? "bg-slate-900 hover:bg-slate-800" : "bg-amber-500 hover:bg-amber-600"}`}>
               {loading ? (
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
-              ) : (
-                <> Sign In <ArrowRight size={15} /> </>
-              )}
+              ) : <> Sign In <ArrowRight size={15} /> </>}
             </button>
           </form>
 
-          {/* Demo credentials */}
-          <div className="mt-5 pt-5 border-t border-slate-100">
-            <p className="text-xs text-slate-400 text-center mb-3">Demo credentials</p>
-            <div className="bg-slate-50 rounded-xl p-3 text-xs text-slate-500 space-y-1 font-mono">
-              <p><span className="text-slate-400">email</span>    {USERS[role][0].email}</p>
-              <p><span className="text-slate-400">password</span> {USERS[role][0].password}</p>
+          {/* Demo box */}
+          <div className="mt-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Demo Credentials</p>
+              <button onClick={fillDemo}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold transition">
+                Auto-fill →
+              </button>
             </div>
-            <button onClick={fillDemo}
-              className="mt-2 w-full text-xs text-indigo-500 hover:text-indigo-700 font-medium py-1 transition">
-              Fill demo credentials →
-            </button>
+            <div className="space-y-1.5 font-mono text-xs">
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 w-16">email</span>
+                <span className="text-slate-700">{USERS[role].email}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 w-16">password</span>
+                <span className="text-slate-700">{USERS[role].password}</span>
+              </div>
+            </div>
           </div>
 
         </div>
-
-        <p className="text-center text-slate-500 text-xs mt-6">
-          Smart Classroom Allocation · DSA Project
-        </p>
       </div>
     </div>
   );

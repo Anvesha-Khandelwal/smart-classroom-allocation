@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, Users, ChevronDown, Search } from "lucide-react";
+import { Building2, Users, Search } from "lucide-react";
 import TeacherLayout from "../components/TeacherLayout";
 import { BRANCH_DATA, COLOR_MAP, TIME_SLOTS, today } from "../data/dsceData";
 import { bookingStore } from "./TeacherBookings";

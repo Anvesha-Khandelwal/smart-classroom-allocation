@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Eye, EyeOff, GraduationCap, BookOpen, Shield } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, GraduationCap, BookOpen, Shield, Zap, Clock } from "lucide-react";
 
 const USERS = {
   teacher: { email: "prof.mehta@dsce.edu.in", password: "teacher123", name: "Prof. Mehta" },
   student: { email: "student@dsce.edu.in",    password: "student123", name: "Alex Kumar"  },
 };
 
+const FEATURES = [
+  { icon: Shield, title: "Conflict Detection",    desc: "Interval tree in O(log n)",     color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
+  { icon: Zap,    title: "Greedy Allocation",      desc: "Best-fit room assignment",       color: "text-sky-400",    bg: "bg-sky-500/10 border-sky-500/20"       },
+  { icon: Clock,  title: "Priority Queue",         desc: "Faculty-first min-heap",         color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
+];
+
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
   const [role,     setRole]     = useState("teacher");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
@@ -20,14 +26,16 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 700));
+
     const user = USERS[role];
-    if (email.trim() !== user.email || password !== user.password) {
-      setError("Invalid credentials. Please try the demo credentials.");
+    if (email.trim().toLowerCase() !== user.email || password !== user.password) {
+      setError("Incorrect email or password.");
       setLoading(false);
       return;
     }
     setLoading(false);
+    // ── Fixed navigation paths ──
     navigate(role === "teacher" ? "/teacher/dashboard" : "/student");
   };
 
@@ -38,70 +46,91 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-slate-950">
 
-      {/* ── Left panel ── */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 flex-col justify-between p-12 relative overflow-hidden">
-        {/* Grid pattern */}
-        <div className="absolute inset-0"
+      {/* ── LEFT PANEL ── */}
+      <div className="hidden lg:flex lg:w-[52%] flex-col relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)" }}>
+
+        {/* Subtle grid */}
+        <div className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: "linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px)",
-            backgroundSize: "48px 48px"
+            backgroundImage: "linear-gradient(rgba(99,102,241,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.06) 1px,transparent 1px)",
+            backgroundSize: "56px 56px"
           }} />
-        {/* Glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
-              <BookOpen size={20} className="text-white" />
+        {/* Glow orbs */}
+        <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-56 h-56 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Content */}
+        <div className="relative flex flex-col h-full px-14 py-12">
+
+          {/* Logo */}
+          <div className="flex items-center gap-3.5 mb-auto">
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-900/50">
+              <BookOpen size={19} className="text-white" />
             </div>
             <div>
-              <p className="text-white font-bold text-lg leading-none">DSCE</p>
-              <p className="text-slate-400 text-xs">Smart Classroom System</p>
+              <p className="text-white font-bold tracking-wide">DSCE</p>
+              <p className="text-indigo-300/60 text-xs tracking-wider uppercase">Smart Classroom System</p>
+            </div>
+          </div>
+
+          {/* Hero text */}
+          <div className="my-auto">
+            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3 py-1 mb-6">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              <span className="text-indigo-300 text-xs font-medium tracking-wide">DSA-Powered Platform</span>
+            </div>
+
+            <h1 className="text-5xl font-bold text-white leading-[1.1] mb-5">
+              Intelligent<br />
+              <span className="text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(135deg, #818cf8, #c084fc)" }}>
+                Room Allocation
+              </span><br />
+              Platform
+            </h1>
+
+            <p className="text-slate-400 text-sm leading-relaxed max-w-xs mb-10">
+              Automated conflict-free classroom scheduling for Dayananda Sagar College of Engineering — powered by core DSA algorithms.
+            </p>
+
+            {/* Feature cards */}
+            <div className="space-y-3">
+              {FEATURES.map(({ icon: Icon, title, desc, color, bg }) => (
+                <div key={title}
+                  className={`flex items-center gap-4 px-4 py-3 rounded-2xl border backdrop-blur-sm ${bg}`}>
+                  <div className={`flex-shrink-0 ${color}`}>
+                    <Icon size={16} />
+                  </div>
+                  <div>
+                    <p className="text-white text-sm font-semibold leading-none mb-0.5">{title}</p>
+                    <p className="text-slate-500 text-xs">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between mt-auto pt-8 border-t border-slate-800/60">
+            <p className="text-slate-600 text-xs">© 2024 DSCE, Bangalore</p>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <p className="text-slate-500 text-xs">System Online</p>
             </div>
           </div>
         </div>
-
-        <div className="relative space-y-6">
-          <div>
-            <h1 className="text-4xl font-bold text-white leading-tight">
-              Intelligent<br />
-              <span className="text-indigo-400">Room Allocation</span><br />
-              Platform
-            </h1>
-            <p className="text-slate-400 mt-4 text-sm leading-relaxed max-w-xs">
-              Powered by greedy algorithms, interval trees, and priority queues — automated conflict-free classroom scheduling for DSCE.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            {[
-              { icon: Shield, text: "Conflict detection in O(log n) time" },
-              { icon: GraduationCap, text: "Priority-based faculty booking" },
-              { icon: BookOpen, text: "Best-fit room allocation algorithm" },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-                  <Icon size={13} className="text-indigo-400" />
-                </div>
-                <p className="text-slate-400 text-sm">{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <p className="relative text-slate-600 text-xs">
-          Dayananda Sagar College of Engineering, Bangalore · DSA Project 2024
-        </p>
       </div>
 
-      {/* ── Right panel ── */}
-      <div className="flex-1 flex items-center justify-center bg-slate-50 p-8">
-        <div className="w-full max-w-md">
+      {/* ── RIGHT PANEL ── */}
+      <div className="flex-1 flex items-center justify-center bg-white p-8">
+        <div className="w-full max-w-[420px]">
 
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
+          <div className="flex items-center gap-3 mb-10 lg:hidden">
             <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
               <BookOpen size={17} className="text-white" />
             </div>
@@ -112,96 +141,109 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-800">Welcome back</h2>
-            <p className="text-slate-500 text-sm mt-1">Sign in to access your dashboard</p>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h2>
+            <p className="text-slate-400 mt-1.5">Sign in to access your dashboard</p>
           </div>
 
           {/* Role toggle */}
-          <div className="flex bg-white rounded-2xl border border-slate-200 p-1 mb-8 shadow-sm">
-            {["teacher", "student"].map((r) => (
-              <button key={r}
-                onClick={() => { setRole(r); setError(""); setEmail(""); setPassword(""); }}
+          <div className="flex bg-slate-100 rounded-2xl p-1 mb-8">
+            {[
+              { key: "teacher", label: "Teacher", Icon: BookOpen },
+              { key: "student", label: "Student", Icon: GraduationCap },
+            ].map(({ key, label, Icon }) => (
+              <button key={key}
+                onClick={() => { setRole(key); setError(""); setEmail(""); setPassword(""); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
-                  ${role === r
-                    ? r === "teacher"
+                  ${role === key
+                    ? key === "teacher"
                       ? "bg-slate-900 text-white shadow-sm"
                       : "bg-amber-500 text-white shadow-sm"
                     : "text-slate-400 hover:text-slate-600"}`}>
-                {r === "teacher" ? <BookOpen size={14} /> : <GraduationCap size={14} />}
-                {r.charAt(0).toUpperCase() + r.slice(1)}
+                <Icon size={14} />
+                {label}
               </button>
             ))}
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
+
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                 Email Address
               </label>
-              <input type="email" required
+              <input type="email" required autoComplete="email"
                 value={email}
                 placeholder={USERS[role].email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition shadow-sm" />
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition" />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                 Password
               </label>
               <div className="relative">
-                <input type={showPwd ? "text" : "password"} required
+                <input type={showPwd ? "text" : "password"} required autoComplete="current-password"
                   value={password}
                   placeholder="Enter your password"
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                  className="w-full px-4 py-3 pr-12 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition shadow-sm" />
+                  className="w-full px-4 py-3 pr-12 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition" />
                 <button type="button" onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition">
+                  className="absolute right-4 top-3.5 text-slate-300 hover:text-slate-500 transition">
                   {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                <p className="text-sm text-red-600">{error} Use the demo credentials below.</p>
               </div>
             )}
 
             <button type="submit" disabled={loading}
-              className={`w-full py-3 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-60
-                ${role === "teacher" ? "bg-slate-900 hover:bg-slate-800" : "bg-amber-500 hover:bg-amber-600"}`}>
+              className={`w-full py-3.5 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-60 mt-2
+                ${role === "teacher"
+                  ? "bg-slate-900 hover:bg-slate-800 shadow-lg shadow-slate-900/20"
+                  : "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20"}`}>
               {loading ? (
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
-              ) : <> Sign In <ArrowRight size={15} /> </>}
+              ) : (
+                <> Sign In <ArrowRight size={15} /> </>
+              )}
             </button>
           </form>
 
-          {/* Demo box */}
-          <div className="mt-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Demo Credentials</p>
+          {/* Demo credentials */}
+          <div className="mt-6 border border-slate-100 rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Demo Credentials</p>
               <button onClick={fillDemo}
-                className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold transition">
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition">
                 Auto-fill →
               </button>
             </div>
-            <div className="space-y-1.5 font-mono text-xs">
-              <div className="flex items-center gap-3">
-                <span className="text-slate-400 w-16">email</span>
-                <span className="text-slate-700">{USERS[role].email}</span>
+            <div className="px-4 py-3 space-y-1.5">
+              <div className="flex items-center gap-3 font-mono text-xs">
+                <span className="text-slate-400 w-16 flex-shrink-0">email</span>
+                <span className="text-slate-700 select-all">{USERS[role].email}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-slate-400 w-16">password</span>
+              <div className="flex items-center gap-3 font-mono text-xs">
+                <span className="text-slate-400 w-16 flex-shrink-0">password</span>
                 <span className="text-slate-700">{USERS[role].password}</span>
               </div>
             </div>
           </div>
+
+          <p className="text-center text-slate-300 text-xs mt-6">
+            Dayananda Sagar College of Engineering · Bangalore
+          </p>
 
         </div>
       </div>

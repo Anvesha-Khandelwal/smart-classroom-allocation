@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Plus, Undo2, Trash2, Search, Filter,
+  Plus, Undo2, Trash2, Search,
   ChevronDown, Building2, Users, Loader2,
   CheckCircle2, AlertTriangle, X, CalendarDays
 } from "lucide-react";

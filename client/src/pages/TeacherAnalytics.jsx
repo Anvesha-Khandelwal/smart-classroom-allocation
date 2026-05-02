@@ -1,27 +1,27 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { BarChart3, TrendingUp, Building2, Users, PieChart } from "lucide-react";
 import TeacherLayout from "../components/TeacherLayout";
 import { BRANCH_DATA, COLOR_MAP, today } from "../data/dsceData";
 import { bookingStore } from "./TeacherBookings";
 
-function MiniBar({ label, value, max, color, sub }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="text-sm font-medium text-slate-700">{label}</span>
-        <div className="flex items-center gap-2">
-          {sub && <span className="text-xs text-slate-400">{sub}</span>}
-          <span className="text-xs font-bold text-slate-600">{pct}%</span>
-        </div>
-      </div>
-      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-700 ${color}`}
-          style={{ width: `${Math.max(pct,1)}%` }} />
-      </div>
-    </div>
-  );
-}
+// function MiniBar({ label, value, max, color, sub }) {
+//   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
+//   return (
+//     <div>
+//       <div className="flex items-center justify-between mb-1.5">
+//         <span className="text-sm font-medium text-slate-700">{label}</span>
+//         <div className="flex items-center gap-2">
+//           {sub && <span className="text-xs text-slate-400">{sub}</span>}
+//           <span className="text-xs font-bold text-slate-600">{pct}%</span>
+//         </div>
+//       </div>
+//       <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+//         <div className={`h-full rounded-full transition-all duration-700 ${color}`}
+//           style={{ width: `${Math.max(pct,1)}%` }} />
+//       </div>
+//     </div>
+//   );
+// }
 
 function StatTile({ label, value, icon: Icon, color, sub }) {
   return (
@@ -38,7 +38,7 @@ function StatTile({ label, value, icon: Icon, color, sub }) {
 
 export default function TeacherAnalyticsPage() {
   const bookings = bookingStore.get();
-  const [view, setView] = useState("branch"); // branch | time | priority
+// const [view, setView] = useState("branch");// branch | time | priority
 
   const totalRooms     = Object.values(BRANCH_DATA).reduce((s,b) => s+b.rooms.length, 0);
   const totalCapacity  = Object.values(BRANCH_DATA).reduce((s,b) => s+b.rooms.reduce((r,rm)=>r+rm.capacity,0),0);

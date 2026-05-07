@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Building2, CalendarDays, Users, TrendingUp,
   ArrowRight, Clock, CheckCircle2, AlertCircle
@@ -133,7 +134,7 @@ useEffect(() => {
             <div className="px-6 py-4 space-y-3">
               {buildings.map(([bldg, stat]) => {
                 const pct = Math.min(100, Math.round((stat.booked / (stat.rooms * 9)) * 100));
-                const c   = COLOR_MAP[stat.color];
+                const c   = COLOR_MAP[stat.color] || COLOR_MAP.indigo;
                 return (
                   <div key={bldg}>
                     <div className="flex items-center justify-between mb-1.5">

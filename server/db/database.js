@@ -1,0 +1,65 @@
+
+const Database = require("better-sqlite3");
+const path     = require("path");
+const fs       = require("fs");
+require("dotenv").config();
+
+const dbPath = process.env.DB_PATH || "./db/classroom.db";
+const db     = new Database(dbPath);
+
+// Enable WAL mode for better performance
+db.pragma("journal_mode = WAL");
+db.pragma("foreign_keys = ON");
+
+// Run schema on startup
+const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
+db.exec(schema);
+
+// Seed default users if table is empty
+const userCount = db.prepare("SELECT COUNT(*) as count FROM users").get();
+if (userCount.count === 0) {
+  const bcrypt = require("bcryptjs");
+
+  const insert = db.prepare(`
+    INSERT INTO users (name, email, password, role, branch)
+    VALUES (?, ?, ?, ?, ?)
+  `);
+
+  insert.run("Prof. Mehta",  "prof.mehta@dsce.edu.in",  bcrypt.hashSync("teacher123", 10), "teacher", "CSE");
+  insert.run("Prof. Sharma", "prof.sharma@dsce.edu.in", bcrypt.hashSync("teacher123", 10), "teacher", "EEE");
+  insert.run("Alex Kumar",   "student@dsce.edu.in",     bcrypt.hashSync("student123", 10), "student", "CSE");
+
+  console.log("✓ Default users seeded");
+}
+
+// Seed rooms if empty
+const roomCount = db.prepare("SELECT COUNT(*) as count FROM rooms").get();
+if (roomCount.count === 0) {
+  const insertRoom = db.prepare(`
+    INSERT INTO rooms (name, building, floor, capacity, branch)
+    VALUES (?, ?, ?, ?, ?)
+  `);
+
+  const rooms = [
+    ["NB-101","Building 19 (NB Block)",1,60,"CSE"],
+    ["NB-102","Building 19 (NB Block)",1,60,"CSE"],
+    ["NB-103","Building 19 (NB Block)",1,40,"CSE"],
+    ["NB-201","Building 19 (NB Block)",2,60,"CSE"],
+    ["NB-202","Building 19 (NB Block)",2,60,"CSE"],
+    ["NB-104","Building 19 (NB Block)",1,60,"ISE"],
+    ["NB-204","Building 19 (NB Block)",2,60,"ISE"],
+    ["B4-101","Building 4",1,60,"MATHS_DS"],
+    ["B4-201","Building 4",2,80,"MATHS_DS"],
+    ["B17-101","Building 17",1,60,"EEE"],
+    ["B17-201","Building 17",2,80,"EEE"],
+    ["B15-101","Building 15",1,60,"ECE"],
+    ["B15-201","Building 15",2,80,"ECE"],
+    ["B6-101","Building 6",1,60,"ME"],
+    ["B8-101","Building 8",1,60,"CIVIL"],
+  ];
+
+  rooms.forEach(r => insertRoom.run(...r));
+  console.log("✓ Rooms seeded");
+}
+
+module.exports = db;

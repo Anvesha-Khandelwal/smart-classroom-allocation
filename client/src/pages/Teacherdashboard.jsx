@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   Building2, CalendarDays, Users, TrendingUp,
   ArrowRight, Clock, CheckCircle2, AlertCircle
@@ -10,10 +9,7 @@ import { BRANCH_DATA, COLOR_MAP, today } from "../data/dsceData";
 // ── Shared booking store (in real app this comes from API) ────
 // We use a simple module-level store so pages share state.
 // Replace with Context or Zustand when wiring to backend.
-export let BOOKINGS = [];
-export const addBooking    = (b) => { BOOKINGS = [...BOOKINGS, b]; };
-export const removeBooking = (id) => { BOOKINGS = BOOKINGS.filter((b) => b.id !== id); };
-
+import { bookingStore } from "./TeacherBookings";
 function StatCard({ icon: Icon, label, value, sub, accent }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
@@ -32,7 +28,14 @@ function StatCard({ icon: Icon, label, value, sub, accent }) {
 export default function TeacherDashboardPage() {
   const navigate = useNavigate();
   // Read from shared store (will re-render when navigating back)
-  const bookings = BOOKINGS;
+ const [bookings, setBookings] = useState(() => bookingStore.get());
+
+useEffect(() => {
+  const unsub = bookingStore.subscribe(() => {
+    setBookings(bookingStore.get());
+  });
+  return unsub;
+}, []);
 
   const todayBookings  = bookings.filter((b) => b.date === today);
   const totalRooms     = Object.values(BRANCH_DATA).reduce((s, b) => s + b.rooms.length, 0);

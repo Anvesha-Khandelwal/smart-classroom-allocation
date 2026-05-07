@@ -3,6 +3,7 @@ import { BarChart3, TrendingUp, Building2, Users, PieChart } from "lucide-react"
 import TeacherLayout from "../components/TeacherLayout";
 import { BRANCH_DATA, COLOR_MAP, today } from "../data/dsceData";
 import { bookingStore } from "./TeacherBookings";
+import { useState, useEffect } from "react";
 
 // function MiniBar({ label, value, max, color, sub }) {
 //   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
@@ -37,7 +38,12 @@ function StatTile({ label, value, icon: Icon, color, sub }) {
 }
 
 export default function TeacherAnalyticsPage() {
-  const bookings = bookingStore.get();
+  const [bookings, setBookings] = useState(() => bookingStore.get());
+
+useEffect(() => {
+  const unsub = bookingStore.subscribe(() => setBookings(bookingStore.get()));
+  return unsub;
+}, []);
 // const [view, setView] = useState("branch");// branch | time | priority
 
   const totalRooms     = Object.values(BRANCH_DATA).reduce((s,b) => s+b.rooms.length, 0);

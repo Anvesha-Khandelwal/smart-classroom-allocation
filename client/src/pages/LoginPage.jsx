@@ -21,22 +21,36 @@ export default function LoginPage() {
   const [showPwd,  setShowPwd]  = useState(false);
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
 
-    const user = USERS[role];
-    if (email.trim().toLowerCase() !== user.email || password !== user.password) {
-      setError("Incorrect email or password.");
+    try {
+      const res  = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      // Save token and user to localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user",  JSON.stringify(data.user));
+
       setLoading(false);
-      return;
+      navigate(data.user.role === "teacher" ? "/teacher/dashboard" : "/student");
+
+    } catch (err) {
+      setError("Cannot connect to server. Make sure the backend is running.");
+      setLoading(false);
     }
-    setLoading(false);
-    // ── Fixed navigation paths ──
-    navigate(role === "teacher" ? "/teacher/dashboard" : "/student");
   };
 
   const fillDemo = () => {

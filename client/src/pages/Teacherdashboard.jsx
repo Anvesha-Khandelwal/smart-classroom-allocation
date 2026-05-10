@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   Building2, CalendarDays, Users, TrendingUp,
-  ArrowRight, Clock, CheckCircle2, AlertCircle
+  ArrowRight, Clock, Loader2
 } from "lucide-react";
 import TeacherLayout from "../components/TeacherLayout";
 import { BRANCH_DATA, COLOR_MAP, today } from "../data/dsceData";
-
-// ── Shared booking store (in real app this comes from API) ────
-// We use a simple module-level store so pages share state.
-// Replace with Context or Zustand when wiring to backend.
 import { bookingStore } from "./TeacherBookings";
+
 function StatCard({ icon: Icon, label, value, sub, accent }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
@@ -28,25 +25,50 @@ function StatCard({ icon: Icon, label, value, sub, accent }) {
 
 export default function TeacherDashboardPage() {
   const navigate = useNavigate();
-  // Read from shared store (will re-render when navigating back)
- const [bookings, setBookings] = useState(() => bookingStore.get());
+  const [bookings,  setBookings]  = useState(() => bookingStore.get());
+  const [fetching,  setFetching]  = useState(true);
 
-useEffect(() => {
-  const unsub = bookingStore.subscribe(() => {
-    setBookings(bookingStore.get());
-  });
-  return unsub;
-}, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) { setFetching(false); return; }
+    fetch("http://localhost:5000/api/bookings", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.bookings ?? [];
+        const normalised = list.map((b) => ({
+          id:       String(b.id),
+          room:     b.room_name ?? b.room ?? "—",
+          roomId:   String(b.room_id ?? ""),
+          subject:  b.subject,
+          batch:    b.batch,
+          start:    b.start_time ?? b.start,
+          end:      b.end_time   ?? b.end,
+          date:     b.date,
+          priority: b.priority ?? 0,
+          capacity: b.capacity,
+          branch:   b.branch,
+          building: b.building ?? BRANCH_DATA[b.branch]?.building ?? "",
+        }));
+        bookingStore.set(normalised);
+        setBookings(bookingStore.get());
+      })
+      .catch(() => {})
+      .finally(() => setFetching(false));
+  }, []);
 
-  const todayBookings  = bookings.filter((b) => b.date === today);
-  const totalRooms     = Object.values(BRANCH_DATA).reduce((s, b) => s + b.rooms.length, 0);
-  const totalCapacity  = Object.values(BRANCH_DATA).reduce((s, b) => s + b.rooms.reduce((r, rm) => r + rm.capacity, 0), 0);
-  const bookedSeats    = bookings.reduce((s, b) => s + (b.capacity || 0), 0);
+  useEffect(() => {
+    const unsub = bookingStore.subscribe(() => setBookings(bookingStore.get()));
+    return unsub;
+  }, []);
 
-  // Recent 5 bookings
-  const recent = [...bookings].reverse().slice(0, 5);
+  const todayBookings = bookings.filter((b) => b.date === today);
+  const totalRooms    = Object.values(BRANCH_DATA).reduce((s, b) => s + b.rooms.length, 0);
+  const totalCapacity = Object.values(BRANCH_DATA).reduce((s, b) => s + b.rooms.reduce((r, rm) => r + rm.capacity, 0), 0);
+  const bookedSeats   = bookings.reduce((s, b) => s + (b.capacity || 0), 0);
+  const recent        = [...bookings].reverse().slice(0, 5);
 
-  // Per-building summary
   const buildings = Object.entries(
     Object.entries(BRANCH_DATA).reduce((acc, [key, val]) => {
       const bldg = val.building;
@@ -60,8 +82,6 @@ useEffect(() => {
   return (
     <TeacherLayout>
       <div className="p-8">
-
-        {/* Page header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
           <p className="text-slate-500 text-sm mt-1">
@@ -69,17 +89,14 @@ useEffect(() => {
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard icon={Building2}    label="Total Classrooms"  value={totalRooms}            accent="bg-indigo-600" sub="campus-wide" />
-          <StatCard icon={CalendarDays} label="Today's Bookings"  value={todayBookings.length}  accent="bg-slate-700"  sub={`${bookings.length} total`} />
-          <StatCard icon={Users}        label="Seats Allocated"   value={bookedSeats}           accent="bg-amber-500"  sub={`of ${totalCapacity}`} />
-          <StatCard icon={TrendingUp}   label="Departments"       value={Object.keys(BRANCH_DATA).length} accent="bg-emerald-600" sub="buildings active" />
+          <StatCard icon={Building2}    label="Total Classrooms" value={totalRooms}                       accent="bg-indigo-600" sub="campus-wide" />
+          <StatCard icon={CalendarDays} label="Today's Bookings" value={todayBookings.length}             accent="bg-slate-700"  sub={`${bookings.length} total`} />
+          <StatCard icon={Users}        label="Seats Allocated"  value={fetching ? "…" : bookedSeats}    accent="bg-amber-500"  sub={`of ${totalCapacity}`} />
+          <StatCard icon={TrendingUp}   label="Departments"      value={Object.keys(BRANCH_DATA).length} accent="bg-emerald-600" sub="buildings active" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* Recent bookings */}
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
               <h2 className="font-bold text-slate-800">Recent Bookings</h2>
@@ -89,7 +106,12 @@ useEffect(() => {
               </button>
             </div>
             <div className="divide-y divide-slate-50">
-              {recent.length === 0 ? (
+              {fetching ? (
+                <div className="flex items-center justify-center gap-2 py-12 text-slate-400">
+                  <Loader2 size={16} className="animate-spin" />
+                  <span className="text-sm">Loading bookings…</span>
+                </div>
+              ) : recent.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                   <CalendarDays size={28} className="mb-2 opacity-30" />
                   <p className="text-sm">No bookings yet</p>
@@ -122,7 +144,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Building overview */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
               <h2 className="font-bold text-slate-800">Buildings</h2>
@@ -155,13 +176,12 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Quick actions */}
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: "New Booking",    sub: "Reserve a classroom",     to: "/teacher/bookings",  icon: CalendarDays, accent: "bg-indigo-600" },
-            { label: "Browse Rooms",   sub: "View availability",       to: "/teacher/rooms",     icon: Building2,    accent: "bg-slate-700"  },
-            { label: "Analytics",      sub: "Usage reports",           to: "/teacher/analytics", icon: TrendingUp,   accent: "bg-emerald-600"},
-            { label: "Today's Slots",  sub: `${todayBookings.length} bookings`, to: "/teacher/bookings", icon: Clock, accent: "bg-amber-500" },
+            { label: "New Booking",   sub: "Reserve a classroom",              to: "/teacher/bookings",  icon: CalendarDays, accent: "bg-indigo-600" },
+            { label: "Browse Rooms",  sub: "View availability",                to: "/teacher/rooms",     icon: Building2,    accent: "bg-slate-700"  },
+            { label: "Analytics",     sub: "Usage reports",                    to: "/teacher/analytics", icon: TrendingUp,   accent: "bg-emerald-600"},
+            { label: "Today's Slots", sub: `${todayBookings.length} bookings`, to: "/teacher/bookings",  icon: Clock,        accent: "bg-amber-500"  },
           ].map(({ label, sub, to, icon: Icon, accent }) => (
             <button key={label} onClick={() => navigate(to)}
               className="bg-white border border-slate-100 rounded-2xl p-4 text-left hover:border-slate-200 hover:shadow-md transition-all shadow-sm group">
@@ -173,7 +193,6 @@ useEffect(() => {
             </button>
           ))}
         </div>
-
       </div>
     </TeacherLayout>
   );

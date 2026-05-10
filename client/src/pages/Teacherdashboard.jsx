@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";  // DELETE THIS LINE (line 3)
+// import { useState, useEffect } from "react";
 import {
   Building2, CalendarDays, Users, TrendingUp,
   ArrowRight, Clock, CheckCircle2, AlertCircle

@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [role,     setRole]     = useState("teacher");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [showPwd,  setShowPwd]  = useState(false);
+  const[showPwd,  setShowPwd]  = useState(false);
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
 
@@ -60,18 +60,15 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-[52%] flex-col relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)" }}>
 
-        {/* Subtle grid */}
         <div className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage: "linear-gradient(rgba(99,102,241,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.06) 1px,transparent 1px)",
             backgroundSize: "56px 56px"
           }} />
 
-        {/* Glow orbs */}
         <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-56 h-56 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Content */}
         <div className="relative flex flex-col h-full px-14 py-12">
 
           {/* Logo */}
@@ -90,18 +87,15 @@ export default function LoginPage() {
             
             {/* UPGRADED BADGE */}
             <div className="inline-flex items-center gap-2.5 bg-white/5 border border-indigo-500/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.15)] transition-all hover:bg-white/10 hover:border-indigo-400/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] cursor-default">
-              {/* Upgraded glowing dot with radar ping effect */}
               <div className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
               </div>
-              {/* Upgraded text */}
               <span className="text-indigo-200 text-xs font-bold tracking-widest uppercase">
                 DSA-Powered Platform
               </span>
             </div>
 
-            {/* Title that was missing! */}
             <h1 className="text-5xl font-bold text-white leading-[1.1] mb-5">
               Intelligent<br />
               <span className="text-transparent bg-clip-text"
@@ -111,13 +105,11 @@ export default function LoginPage() {
               Platform
             </h1>
 
-            {/* Description that was missing! */}
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs mb-10">
               Automated conflict-free classroom scheduling for Dayananda Sagar College of Engineering — powered by core DSA algorithms.
             </p>
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-between mt-auto pt-8 border-t border-slate-800/60">
             <p className="text-slate-600 text-xs">© 2024 DSCE, Bangalore</p>
             <div className="flex items-center gap-1.5">
@@ -132,7 +124,6 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center bg-white p-8">
         <div className="w-full max-w-[420px]">
 
-          {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
             <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
               <BookOpen size={17} className="text-white" />
@@ -148,7 +139,6 @@ export default function LoginPage() {
             <p className="text-slate-400 mt-1.5">Sign in to access your dashboard</p>
           </div>
 
-          {/* Role toggle */}
           <div className="flex bg-slate-100 rounded-2xl p-1 mb-8">
             {[
               { key: "teacher", label: "Teacher", Icon: BookOpen },
@@ -168,7 +158,6 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
 
             <div>
@@ -199,7 +188,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Error */}
             {error && (
               <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
@@ -223,7 +211,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo credentials */}
           <div className="mt-6 border border-slate-100 rounded-2xl overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Demo Credentials</p>
